@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <string>
 #include <vector>
+#include <memory>
 
 /**
  * @class TrieNode
@@ -21,28 +22,28 @@ public:
      * Initializes the node with no children and marks it as not being
      * the end of a word.
      */
-    TrieNode() : m_isEndOfWord(false) {}
+    TrieNode();
 
     /**
      * @brief Provides read-only access to the children of the node.
      * 
      * @return A constant reference to the unordered map of children nodes.
      */
-    const std::unordered_map<char, TrieNode*>& getChildren() const;
+    const std::unordered_map<char, std::unique_ptr<TrieNode>>& getChildren() const;
 
     /**
      * @brief Returns a constant iterator to the beginning of the children map.
      * 
      * @return An iterator pointing to the first child in the map.
      */
-    std::unordered_map<char, TrieNode*>::const_iterator begin() const;
+    std::unordered_map<char, std::unique_ptr<TrieNode>>::const_iterator begin() const;
 
     /**
      * @brief Returns a constant iterator to the end of the children map.
      * 
      * @return An iterator pointing past the last child in the map.
      */
-    std::unordered_map<char, TrieNode*>::const_iterator end() const;
+    std::unordered_map<char, std::unique_ptr<TrieNode>>::const_iterator end() const;
 
     /**
      * @brief Marks the node as the end of a word or not.
@@ -64,7 +65,7 @@ public:
      * @param ch The character associated with the child node.
      * @param node A pointer to the child TrieNode.
      */
-    void setChild(char ch, TrieNode* node);
+    void setChild(char ch, std::unique_ptr<TrieNode> node);
 
     /**
      * @brief Retrieves the child node associated with a given character.
@@ -94,7 +95,7 @@ private:
      * @brief A map storing the children nodes, where each key is a character
      * and the value is a pointer to the corresponding TrieNode.
      */
-    std::unordered_map<char, TrieNode*> children;
+    std::unordered_map<char, std::unique_ptr<TrieNode>> children;
 
     /**
      * @brief A boolean flag indicating whether this node marks the end of a word.
@@ -114,7 +115,7 @@ private:
     /**
      * @brief Pointer to the root node of the Trie.
      */
-    TrieNode* root;
+    std::unique_ptr<TrieNode> root;
 
     /**
      * @brief Helper function to collect all words stored in the Trie starting from a given node.
@@ -129,14 +130,12 @@ public:
     /**
      * @brief Constructs a new Trie object and initializes the root node.
      */
-    Trie() : root(new TrieNode()) {}
+    Trie();
 
     /**
      * @brief Destroys the Trie object and deallocates memory used by the root node.
      */
-    ~Trie() {
-        delete root;
-    };
+    ~Trie();
 
     /**
      * @brief Inserts a word into the Trie.
