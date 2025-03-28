@@ -44,26 +44,41 @@ bool TrieNode::hasChild(char ch) const {
 Trie::Trie() : root(std::make_unique<TrieNode>()) {}
 
 void Trie::insert(const std::string& word) {
-    TrieNode* node = root.get();
-    for (char ch : word) {
-        auto& children = node->getChildren();
-        if (children.find(ch) == children.end()) {
-            node->setChild(ch, std::make_unique<TrieNode>());
-        }
-        node = node->getChild(ch);
+    if (word.empty()) {
+        return;
     }
-    node->setEndOfWord(true);
+
+    TrieNode* current = root.get();
+    for (const char ch : word) {
+        if (!current->hasChild(ch)) {
+            current->setChild(ch, std::make_unique<TrieNode>());
+        }
+        current = current->getChild(ch);
+    }
+    current->setEndOfWord(true);
 }
 
 bool Trie::search(const std::string& word) const {
-    TrieNode* node = root.get();
-    for (char ch : word) {
-        node = node->getChild(ch);
-        if (!node) {
+    // Handle empty string case
+    if (word.empty()) {
+        return false;
+    }
+
+    // Start from the root node
+    TrieNode* current = root.get();
+
+    // Traverse the trie for each character in the word
+    for (const char ch : word) {
+        // If current character doesn't exist in trie, word is not found
+        if (!current->hasChild(ch)) {
             return false;
         }
+        // Move to the next node in the path
+        current = current->getChild(ch);
     }
-    return node->isEndOfWord();
+
+    // Word exists only if the last node is marked as end of word
+    return current->isEndOfWord();
 }
 
 bool Trie::remove(const std::string& word) {
@@ -71,28 +86,33 @@ bool Trie::remove(const std::string& word) {
 }
 
 bool Trie::removeHelper(TrieNode* node, const std::string& word, size_t depth) {
-    if (!node) {
+    // Early return for invalid cases
+    if (!node || depth > word.size()) {
         return false;
     }
+
+    // Word found - handle deletion
     if (depth == word.size()) {
-        if (node->isEndOfWord()) {
-            node->setEndOfWord(false);
-            return nodeIsEmpty(node);
+        if (!node->isEndOfWord()) {
+            return false;  // Word not marked as complete
         }
+        node->setEndOfWord(false);
+        return node->getChildren().empty();  // Return true if no children
+    }
+
+    // Continue searching
+    const char ch = word[depth];
+    TrieNode* child = node->getChild(ch);
+    
+    if (!child || !removeHelper(child, word, depth + 1)) {
         return false;
     }
 
-    char ch = word[depth];
-    TrieNode* childNode = node->getChild(ch);
-    if (!childNode) {
-        return false;
-    }
-
-    if (removeHelper(childNode, word, depth + 1)) {
-        node->removeChild(ch);
-        return !node->isEndOfWord() && nodeIsEmpty(node);
-    }
-    return false;
+    // Remove child if it should be deleted
+    node->removeChild(ch);
+    
+    // Return true if this node should also be deleted
+    return !node->isEndOfWord() && node->getChildren().empty();
 }
 
 bool Trie::nodeIsEmpty(TrieNode* node) const {
