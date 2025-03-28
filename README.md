@@ -35,21 +35,14 @@ To build the project, you need to have CMake installed. Follow these steps:
    ```
 5. Build the project:
    ```
-   make
+   make -j
    ```
 
 ## Running the Application
 
 After building the project, you can run the application using the following command:
 ```
-./trie-database
-```
-
-## Running Tests
-
-To run the unit tests, you can use the following command after building the project:
-```
-./tests/test_trie
+./TrieDatabase
 ```
 
 ## Usage
