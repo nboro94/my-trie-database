@@ -5,15 +5,12 @@ This project implements a Trie data structure, which is a type of search tree us
 ## Project Structure
 
 ```
-trie-database
+my-trie-database
 ├── src
 │   ├── main.cpp        # Entry point of the application
-│   ├── trie.cpp        # Implementation of the Trie class
-│   └── trie.h          # Declaration of the Trie class
+│   └── trie.cpp        # Implementation of the Trie class
 ├── include
 │   └── trie.h          # Public header for the Trie class
-├── tests
-│   └── test_trie.cpp   # Unit tests for the Trie class
 ├── CMakeLists.txt      # CMake configuration file
 └── README.md           # Project documentation
 ```
