@@ -92,7 +92,7 @@ bool Trie::removeHelper(TrieNode* node, const std::string& word, size_t depth) {
 }
 
 bool Trie::nodeIsEmpty(TrieNode* node) const {
-    for (auto it = node->getChildren().begin(); it != node->getChildren().end(); ++it) {
+    for (auto it = node->begin(); it != node->end(); ++it) {
         if (it->second) {
             return false;
         }
