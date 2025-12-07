@@ -1,10 +1,24 @@
 #ifndef TRIE_H
 #define TRIE_H
 
+#ifdef TRIE_USE_ORDERED_MAP
+#include <map>
+#else
 #include <unordered_map>
+#endif
+
 #include <string>
 #include <vector>
 #include <memory>
+#include <ostream>
+
+#ifdef TRIE_USE_ORDERED_MAP
+template <typename Key, typename Value>
+using TrieMap = std::map<Key, Value>;
+#else
+template <typename Key, typename Value>
+using TrieMap = std::unordered_map<Key, Value>;
+#endif
 
 /**
  * @class TrieNode
@@ -25,25 +39,51 @@ public:
     TrieNode();
 
     /**
+     * @brief Constructs a new TrieNode by copying another TrieNode.
+     * @param other The TrieNode to copy.
+     */
+    TrieNode(const TrieNode& other);
+
+    /**
+     * @brief Copy assigns a TrieNode.
+     * @param other The TrieNode to copy from.
+     * @return A reference to this TrieNode.
+     */
+    TrieNode& operator=(const TrieNode& other);
+
+    /**
+     * @brief Constructs a new TrieNode by moving another TrieNode.
+     * @param other The TrieNode to move.
+     */
+    TrieNode(TrieNode&& other) noexcept;
+
+    /**
+     * @brief Move assigns a TrieNode.
+     * @param other The TrieNode to move from.
+     * @return A reference to this TrieNode.
+     */
+    TrieNode& operator=(TrieNode&& other) noexcept;
+
+    /**
      * @brief Provides read-only access to the children of the node.
      * 
-     * @return A constant reference to the unordered map of children nodes.
+     * @return A constant reference to the map of children nodes.
      */
-    const std::unordered_map<char, std::unique_ptr<TrieNode>>& getChildren() const;
+    const TrieMap<char, std::unique_ptr<TrieNode>>& getChildren() const;
 
     /**
      * @brief Returns a constant iterator to the beginning of the children map.
      * 
      * @return An iterator pointing to the first child in the map.
      */
-    std::unordered_map<char, std::unique_ptr<TrieNode>>::const_iterator begin() const;
+    TrieMap<char, std::unique_ptr<TrieNode>>::const_iterator begin() const;
 
     /**
      * @brief Returns a constant iterator to the end of the children map.
      * 
      * @return An iterator pointing past the last child in the map.
      */
-    std::unordered_map<char, std::unique_ptr<TrieNode>>::const_iterator end() const;
+    TrieMap<char, std::unique_ptr<TrieNode>>::const_iterator end() const;
 
     /**
      * @brief Marks the node as the end of a word or not.
@@ -95,7 +135,7 @@ private:
      * @brief A map storing the children nodes, where each key is a character
      * and the value is a pointer to the corresponding TrieNode.
      */
-    std::unordered_map<char, std::unique_ptr<TrieNode>> children;
+    TrieMap<char, std::unique_ptr<TrieNode>> children;
 
     /**
      * @brief A boolean flag indicating whether this node marks the end of a word.
@@ -125,12 +165,39 @@ private:
      * @param words A reference to a vector where the collected words will be stored.
      */
     void collectWords(TrieNode* node, std::string prefix, std::vector<std::string>& words) const;
+    void visualizeHelper(std::ostream& out, const TrieNode* node, const std::string& parentName, int& nodeCount) const;
 
 public:
     /**
      * @brief Constructs a new Trie object and initializes the root node.
      */
     Trie();
+
+    /**
+     * @brief Constructs a new Trie by copying another Trie.
+     * @param other The Trie to copy.
+     */
+    Trie(const Trie& other);
+
+    /**
+     * @brief Copy assigns a Trie.
+     * @param other The Trie to copy from.
+     * @return A reference to this Trie.
+     */
+    Trie& operator=(const Trie& other);
+
+    /**
+     * @brief Constructs a new Trie by moving another Trie.
+     * @param other The Trie to move.
+     */
+    Trie(Trie&& other) noexcept;
+
+    /**
+     * @brief Move assigns a Trie.
+     * @param other The Trie to move from.
+     * @return A reference to this Trie.
+     */
+    Trie& operator=(Trie&& other) noexcept;
 
     /**
      * @brief Destroys the Trie object and deallocates memory used by the root node.
@@ -167,6 +234,13 @@ public:
      */
     void printWords() const;
 
+    /**
+     * @brief Generates a visualization of the Trie in DOT format.
+     * 
+     * @param filename The name of the file to save the DOT representation to.
+     */
+    void visualize(const std::string& filename) const;
+
 private:
     /**
      * @brief Helper function to recursively remove a word from the Trie.
@@ -176,15 +250,7 @@ private:
      * @param depth The current depth in the Trie corresponding to the character index in the word.
      * @return true if the node can be safely deleted, false otherwise.
      */
-    bool removeHelper(TrieNode* node, const std::string& word, size_t depth);
-
-    /**
-     * @brief Checks if a given TrieNode has no children.
-     * 
-     * @param node The TrieNode to check.
-     * @return true if the node has no children, false otherwise.
-     */
-    bool nodeIsEmpty(TrieNode* node) const;
+    bool removeHelper(TrieNode* node, const std::string& word, size_t depth, bool& removed);
 };
 
 #endif // TRIE_H
